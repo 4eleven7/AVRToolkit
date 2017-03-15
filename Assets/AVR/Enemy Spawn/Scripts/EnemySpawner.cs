@@ -31,7 +31,7 @@ namespace AVRToolkit.EnemySpawner
 		{
 			_locations = GameObject.FindGameObjectsWithTag("Enemy Spawn Location");
 		}
-		
+
 		public void Spawn(SpawnType type)
 		{
 			GameObject location = null;
@@ -81,29 +81,20 @@ namespace AVRToolkit.EnemySpawner
 				return null;
 			}
 
+			bool isClosest = (search == SearchDistance.Closest);
+
 			GameObject player = GameObject.FindGameObjectsWithTag(_playerTag)[0];
 			Vector3 playersPosition = player.transform.position;
 			
-			float distance = (search == SearchDistance.Closest) ? Mathf.Infinity : 0;
+			float distance = isClosest ? Mathf.Infinity : 0;
 
 			GameObject bestLocation = null;
 			foreach (GameObject location in _locations)
 			{
 				float currentDistance = Vector3.Distance(playersPosition, location.transform.position);
 				
-				bool isMatch = false;
-				switch (search)
-				{
-					case SearchDistance.Closest:
-						isMatch = (currentDistance < distance);
-						break;
-
-					case SearchDistance.Furthest:
-						isMatch = (currentDistance > distance);
-						break;
-				}
-
-				if (isMatch)
+				bool isMatch = (currentDistance < distance);
+				if (isMatch == isClosest)
 				{
 					bestLocation = location;
 					distance = currentDistance;
