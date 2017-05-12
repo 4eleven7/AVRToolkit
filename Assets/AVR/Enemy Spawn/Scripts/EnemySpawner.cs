@@ -17,10 +17,39 @@ using UnityEngine;
 
 namespace AVRToolkit.EnemySpawner
 {
+	public class EnemyZoneSpawner : EnemySpawner
+	{
+		private GameObject[] _locations;
+		
+		public void Spawn(SpawnType type, int zone)
+		{
+			GameObject[] locations = null;
+			
+			foreach (GameObject location in locations)
+			{
+				float currentDistance = Vector3.Distance(playersPosition, location.transform.position);
+				
+				bool isMatch = (currentDistance < distance);
+				if (isMatch == isClosest)
+				{
+					bestLocation = location;
+					distance = currentDistance;
+				}
+			}
+			
+			if (locations == null) {
+ 				Debug.Log("AVR.EnemyZoneSpawner.Spawn could not find zone");
+				return
+			}
+			
+			Spawn(type, locations);
+		}
+	}
+	
 	public class EnemySpawner : MonoBehaviour
 	{
 		private GameObject[] _locations;
-
+		
 		[SerializeField]
 		private GameObject _enemyPrefab;
 
@@ -30,9 +59,16 @@ namespace AVRToolkit.EnemySpawner
 		void Awake()
 		{
 			_locations = GameObject.FindGameObjectsWithTag("Enemy Spawn Location");
+			
+			
 		}
-
+		
 		public void Spawn(SpawnType type)
+		{
+			Spawn(type, _locations);
+		}
+		
+		protected void Spawn(SpawnType type, GameObject[] locations)
 		{
 			GameObject location = null;
 
@@ -74,7 +110,7 @@ namespace AVRToolkit.EnemySpawner
 			Furthest
 		}
 
-		GameObject FindSpawnLocation(SearchDistance search)
+		GameObject FindSpawnLocation(SearchDistance search, GameObject[] locations)
 		{
 			if (_playerTag == null) {
 				Debug.Log("AVR.EnemySpawner.playerTag = null. Can't spawn closest to player, if we can't find player via tag.");
@@ -89,7 +125,7 @@ namespace AVRToolkit.EnemySpawner
 			float distance = isClosest ? Mathf.Infinity : 0;
 
 			GameObject bestLocation = null;
-			foreach (GameObject location in _locations)
+			foreach (GameObject location in locations)
 			{
 				float currentDistance = Vector3.Distance(playersPosition, location.transform.position);
 				
